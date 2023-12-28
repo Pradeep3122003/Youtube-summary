@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Transcript Summarizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: linear-gradient(42deg,red,white,rgb(255, 255, 255),rgb(255, 0, 0));
+        }
+
+        #container {
+            max-width: 40vw;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        input{
+            display: block;
+            width:50% ;
+            height: 3vh;
+            font-size: larger;
+            margin:0 auto;
+        }
+        button{
+            display: block;
+            height: 3vh;
+            margin:0 auto;
+        }
+
+        #video-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: x-large;
+        }
+
+        #video-thumbnail {
+            width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        
+
+        #summary {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="video-info">
+            <img id="video-thumbnail" src="" alt="Video Thumbnail">
+            <h2 id="video-title"></h2>
+            <p id="video-creator"></p>
+            <p id="video-account"></p>
+        </div>
+      
+        <div id="summary"></div>
+        <input type="text" id="youtube-link" placeholder="Paste YouTube link">
+        <button onclick="getVideoInfo()">Get Video Info</button>
+    </div>
+
+
+<script>
+    function getVideoInfo() {
+        const youtubeLink = document.getElementById('youtube-link').value;
+        const videoId = extractVideoId(youtubeLink);
+
+       
+        const apiKey = 'AIzaSyAcP97bA9gJcPmmk0NSf7TIqZDRh3_F97I';
+        const videoApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
+        const captionsApiUrl = `https://www.googleapis.com/youtube/v3/captions?videoId=${videoId}&key=${apiKey}`;
+
+        
+        fetch(videoApiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const video = data.items[0].snippet;
+                document.getElementById('video-title').innerText = video.title;
+                document.getElementById('video-creator').innerText = `Creator: ${video.channelTitle}`;
+                document.getElementById('video-account').innerText = `YouTube Account: ${video.channelTitle}`;
+                document.getElementById('video-thumbnail').src = video.thumbnails.medium.url;
+            })
+            .catch(error => console.error('Error fetching video details:', error));
+
+      
+        fetch(captionsApiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const captions = data.items[0].snippet;
+                document.getElementById('captions').innerText = captions.body;
+            })
+            .catch(error => console.error('Error fetching captions:', error));
+
+        
+        
+
+      
+        const summary = "This is a summary of the video transcript.";
+        document.getElementById('summary').innerText = summary;
+    }
+
+    function extractVideoId(url) {
+        const regex = /[?&]v=([^#\&\?]+)/;
+        const match = url.match(regex);
+        return match && match[1] ? match[1] : null;
+    }
+</script>
+
+</body>
+</html>
